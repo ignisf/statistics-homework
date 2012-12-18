@@ -35,7 +35,9 @@
 \end{pr}
 
 \sol Нека дефинираме функцията \texttt{standing\_points}, която приема параметри
-$n$ и $m$ със стойност по подразбиране $1000$ така: <<standing>>=
+$n$ и $m$ със стойност по подразбиране $1000$ така:
+
+<<standing>>=
 standing_points = function(n, m=1000) { results = numeric(0) for(i in 1:m) {
     count = 0 permutation = sample(1:n, n)
 
