@@ -38,8 +38,12 @@
 $n$ и $m$ със стойност по подразбиране $1000$ така:
 
 <<standing>>=
-standing_points = function(n, m=1000) { results = numeric(0) for(i in 1:m) {
-    count = 0 permutation = sample(1:n, n)
+standing_points = function(n, m=1000) {
+  results = numeric(0)
+
+  for(i in 1:m) {
+    count = 0
+    permutation = sample(1:n, n)
 
     for(j in 1:n){
       if(permutation[j] == j) count = count + 1
