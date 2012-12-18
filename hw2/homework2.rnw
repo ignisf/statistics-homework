@@ -1,0 +1,160 @@
+\documentclass{report}
+
+\usepackage[a4paper]{geometry}
+
+\usepackage{libertineotf}
+\setmonofont{Inconsolata}
+\newfontfamily{\cyrillicfonttt}{Inconsolata}
+
+\usepackage{xecyr}
+\usepackage{polyglossia}
+\setmainlanguage{bulgarian}
+
+\usepackage{amsmath}
+\newtheorem{pr}{Задача}
+\newcommand\sol{\section*{Решение} }
+
+\usepackage{csvsimple}
+\usepackage{wrapfig}
+\usepackage{enumitem}
+
+\usepackage[noae]{Sweave}
+\begin{document}
+
+\title{Домашно упражнение №2}
+\author{Петко Стоянов Борджуков\\\small{Ф№ 61322, курс IV, група IV}}
+
+\maketitle
+
+\begin{pr}
+  Напишете функция в средата R, която за произволно $n$ прави $m$ симулации на
+  броя неподвижни точки на пермутациите на числата от $1$ до $n$. Функцията да
+  връща оценки за средното и дисперсията на случайната величина брой неподвижни
+  точки при пермутация на числата от $1$ до $n$. Приложете я за $n = 10, 20, 30$
+  и $m = 1000$. Резултатите близки лиса до теоретичните?
+\end{pr}
+
+\sol
+Нека дефинираме функцията \texttt{standing\_points}, която приема параметри $n$ и $m$ със стойност по подразбиране $1000$ така:
+<<standing>>=
+standing_points = function(n, m=1000) {
+  results = numeric(0)
+  for(i in 1:m) {
+    count = 0
+    permutation = sample(1:n, n)
+
+    for(j in 1:n){
+      if(permutation[j] == j) count = count + 1
+    }
+
+    results[i] = count
+  }
+  c(mean(results), var(results))
+}
+@
+
+Нека изпълним функцията за $n = 10, 20, 30$:
+<<>>=
+standing_points(10)
+standing_points(20)
+standing_points(30)
+@
+
+Резултатите са близки до теоретичните.
+
+\begin{pr}
+  Да се направи симулация на централна гранична теорема, когато имаме микс от
+  две разпределения, за които очакването на сл. величини от тези разпределения е
+  $1$ и дисперсията също е $1$. Разпределенията са по Ваш избор, както и
+  пропорцията на сл. вел. от двете разпределения.
+\end{pr}
+
+\sol
+Нека дефинираме функцията \texttt{clt}, която приема за аргументи брой
+симулации, $n$ – брой наблюдения при симулация, $\mu$ – средна стойност и
+$\sigma$ – стандартно отклонение. Нека тази функция да съставя списък от
+случайни величини. Тези случайни величини са получени в съотношение $1:1$ от
+нормално и експоненциално разпределение с очакване $\mu$ и дисперсия $\sigma$.
+
+<<>>=
+clt = function(simulations=100, n=100, mu=1, sigma=1) {
+  results = c()
+  for(i in 1:simulations) {
+    X = rnorm(n, mu, sigma)
+    Y = rexp(n,1/mu)
+    results[i] = (mean(X) - mu)/(sigma/sqrt(n))
+    results[simulations+i] = (mean(Y) - mu)/(mu/sqrt(n))
+  }
+  results
+}
+@
+
+Нека извършим $5000$ симулации с параметри $\mu = 1$ и $\sigma = 1$ и да сравним получената хистограма с кривата на $N(0, 1)$:
+\begin{center}
+<<fig=TRUE>>=
+hist(clt(5000), prob=T)
+curve(dnorm(x), add=T)
+@
+\end{center}
+Данните ни са приблизително нормално разпределени.
+
+\begin{pr}\label{pr:3}
+  Решете:
+
+  \begin{enumerate}[label=(\alph*)]
+  \item Нека $\xi \sim N(0,1)$. Намерете $z^\ast$, такова че $P(-z^\ast < \xi <
+    z^\ast) = 0.6$.
+  \item Нека $\eta \sim Ge(0.3)$. Намерете $P(1 \leq \eta \leq 4)$.
+  \item Нека $\zeta \sim Exp(1)$. Намерете $q$, такова че $P(\zeta <
+    q) = 0.5$.
+  \end{enumerate}
+\end{pr}
+
+\sol
+\begin{enumerate}[label=(\alph*)]
+\item Вероятността случайната величина да е в интервал $(-z^\ast; z^\ast)$ e
+  лицето, заградено от плътността на нормалното разпределение между $-z^\ast$ и
+  $z^\ast$. Понеже средното на това разпределение е $0$, плътността е четна
+  функция и лицето между $-z^\ast$ и $0$ е равно на лицето между $0$ и $z^\ast$
+  – половината от цялото лице. Тогава $z^\ast$ се изчислява така:
+<<>>=
+z = abs(qnorm(0.5 - 0.3))
+@
+
+  Проверка:
+<<>>=
+pnorm(z)-pnorm(-z)
+@
+\item Вероятността $P(1 \leq \eta \leq 4)$ се пресмята така:
+<<>>=
+pgeom(4, 0.3) - pgeom(1, 0.3)
+@
+
+\item Стойността на $q$ изчисляваме така:
+<<>>=
+qexp(0.5, 1)
+@
+\end{enumerate}
+
+\begin{pr}
+  За $\eta$ от задача~\ref{pr:3} да се начертае дискретната плътност
+  (вероятностното разпределение: $k$ срещу $P(\eta = k)$). На същата графика, но
+  с различни символи, да се добавят разпределенията на $\eta_1 \sim Ge(0.25)$ и
+  $\eta_2 \sim Ge(0.4)$.
+\end{pr}
+
+\sol
+
+\begin{center}
+<<fig=TRUE>>=
+xvals = 0:30
+hist(rgeom(1000, 0.3), prob=T)
+points(xvals, dgeom(xvals, 0.3) , type='p', pch='o', lwd=3, col='green')
+points(xvals, dgeom(xvals, 0.25), type='p', pch='x', lwd=2, col='blue')
+points(xvals, dgeom(xvals, 0.4) , type='p', pch='+', lwd=2, col='red')
+
+legend(c("topright"), c("0.25","0.3", "0.4"),
+       pch=c('x', 'o', '+'),col=c("blue","green","red"))
+@
+\end{center}
+\end{document}
