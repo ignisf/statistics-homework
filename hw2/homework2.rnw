@@ -22,7 +22,7 @@
 \begin{document}
 
 \title{Домашно упражнение №2}
-\author{Петко Стоянов Борджуков\\\small{Ф№ 61322, курс IV, група IV}}
+\author{Петко Стоянов Борджуков\\\small{Ф№ XXXXX, курс XX, група XX}}
 
 \maketitle
 
